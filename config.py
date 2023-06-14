@@ -46,12 +46,7 @@ class Configuration:
 
 	def get_report_message(self, task_time):
 		with open(self.get_value("MailTemplate"), "r") as file:
-			return file.read()
-			.replace("{USERNAME}", self.get_value("Username"))
-			.replace("{MAIL}", self.get_value("SendFrom"))
-			.replace("{SCAN_CONFIG}", self.get_value("ScanType"))
-			.replace("{DATETIME}", task_time)
-			.replace("{DURATION}", task_time.replace(microsecond = 0) - datetime.datetime.now())
+			return file.read().replace("{USERNAME}", self.get_value("Username")).replace("{MAIL}", self.get_value("SendFrom")).replace("{SCAN_CONFIG}", self.get_value("ScanType")).replace("{DATETIME}", task_time).replace("{DURATION}", task_time.replace(microsecond = 0) - datetime.datetime.now())
 	
 	def writeLog(self, message):
 		print(message)
