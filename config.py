@@ -38,7 +38,7 @@ class Configuration:
 
 	def get_report_path(self):
 		filename = "Security Scan Report " + strftime("%y-%m-%d %H-%M-%S") + ".pdf"
-		path = self.get_value("Reports") + "/" + filename
+		path = self.get_value("Reports") + filename
 		return path
 
 	def get_report_subject(self, task_name):
@@ -46,8 +46,16 @@ class Configuration:
 
 	def get_report_message(self, task_time):
 		with open(self.get_value("MailTemplate"), "r") as file:
-			return file.read().replace("{USERNAME}", self.get_value("Username")).replace("{MAIL}", self.get_value("SendFrom")).replace("{SCAN_CONFIG}", self.get_value("ScanType")).replace("{DATETIME}", task_time).replace("{DURATION}", task_time.replace(microsecond = 0) - datetime.datetime.now())
-	
+			message = file.read()
+			
+			for word in (("{MAIL}", self.get_value("SendFrom")),
+			("{USERNAME}", self.get_value("Username")),
+			("{MAIL}", self.get_value("SendFrom")),
+			("{SCAN_CONFIG}", self.get_value("ScanType")),
+			("{DATETIME}", str(task_time)),
+			("{DURATION}", str(datetime.now() - task_time))):
+				message = message.replace(*word)
+			return message
 	def writeLog(self, message):
 		print(message)
 		with open(self.data["Logfile"], "a") as file:
