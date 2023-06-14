@@ -1,13 +1,14 @@
 import json
-import bcrypt
-import time
+from bcrypt import checkpw
+from time import strftime
+from datetime import datetime
 
-CONFIG_FILE = 'config.cfg'
-DEFAULT_CONFIG_FILE = 'default.cfg'
+CONFIG_FILE = "config.cfg"
+DEFAULT_CONFIG_FILE = "default.cfg"
 
 class Configuration:
 	def __init__(self):
-		with open(CONFIG_FILE, 'r') as file:
+		with open(CONFIG_FILE, "r") as file:
 			self.data = json.load(file)
 		self.writeLog("Service started")
 	
@@ -16,33 +17,43 @@ class Configuration:
 
 	def set_value(self, key, value):
 		self.data[key] = value
-		with open(CONFIG_FILE, 'w') as file:
+		with open(CONFIG_FILE, "w") as file:
 			json.dump(self.data, file, indent = 2)
-		self.writeLog('Set ' + key + ' to ' + value)
+		self.writeLog("Set " + key + " to " + value)
 
 	def restore_defaults(self):
-		with open(DEFAULT_CONFIG_FILE, 'r') as file:
+		with open(DEFAULT_CONFIG_FILE, "r") as file:
 			self.data = json.load(file)
-		with open(CONFIG_FILE, 'w') as file:
+		with open(CONFIG_FILE, "w") as file:
 			json.dump(self.data, file, indent = 2)
-		self.writeLog('Restored default configuration')
+		self.writeLog("Restored default configuration")
 
 	def login(self, password):
-		with open(self.data['Password'], 'rb') as file:
-			if bcrypt.checkpw(password.encode('utf-8'), file.read()):
-				self.writeLog('Successfully logged in')
+		with open(self.data["Password"], "rb") as file:
+			if checkpw(password.encode("utf-8"), file.read()):
+				self.writeLog("Successfully logged in")
 				return True
-		self.writeLog('Login failed')
+		self.writeLog("Login failed")
 		return False
 
-	def send_report(self, data):
-		filename = 'Security Scan Report ' + time.strftime('%y-%m-%d %H-%M-%S') + '.pdf'
-		path = self.get_value('Reports') + '/' + filename
-		with open(path, 'xb') as file:
-			file.write(data)
-		self.writeLog('Created new report: ' + path)
-		# send report
+	def get_report_path(self):
+		filename = "Security Scan Report " + strftime("%y-%m-%d %H-%M-%S") + ".pdf"
+		path = self.get_value("Reports") + "/" + filename
+		return path
 
+	def get_report_subject(self, task_name):
+		return f"[BSOSKANER] Task {task_name} has been completed"
+
+	def get_report_message(self, task_time):
+		with open(self.get_value("MailTemplate"), "r") as file:
+			return file.read()
+			.replace("{USERNAME}", self.get_value("Username"))
+			.replace("{MAIL}", self.get_value("SendFrom"))
+			.replace("{SCAN_CONFIG}", self.get_value("ScanType"))
+			.replace("{DATETIME}", task_time)
+			.replace("{DURATION}", task_time.replace(microsecond = 0) - datetime.datetime.now())
+	
 	def writeLog(self, message):
-		with open(self.data['Logfile'], 'a') as file:
-			file.write(time.strftime('%d.%m.%y %H:%M') + '\t' + message + '\n')
+		print(message)
+		with open(self.data["Logfile"], "a") as file:
+			file.write(strftime("%d.%m.%y %H:%M") + "\t" + message + "\n")
