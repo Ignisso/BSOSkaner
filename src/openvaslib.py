@@ -4,10 +4,11 @@ from base64 import b64decode
 from config import Configuration
 from datetime import datetime
 from icalendar import Calendar, Event
+from os import system
 
 from gvm.connections import TLSConnection
 from gvm.errors import GvmError
-from gvm.protocols.gmpv224 import Gmp
+from gvm.protocols.gmpv224 import Gmp, ReportFormatType
 from gvm.transforms import EtreeCheckCommandTransform
 from gvm.xml import pretty_print as xml_print
 
@@ -17,6 +18,7 @@ class OpenVAS:
 		connection = TLSConnection(hostname=hostname, port=port)
 		transform = EtreeCheckCommandTransform()
 		
+		self.config = Configuration()
 		self.gmp = Gmp(connection=connection, transform=transform)
 		self.gmp.authenticate(username, password)
 			
@@ -49,16 +51,17 @@ class OpenVAS:
 			report = self.gmp.get_report(report_id, report_format_id = ReportFormatType.PDF)
 			b64 = report.getchildren()[0].getchildren()[8].tail
 			pdfdata = b64decode(b64)
-			with open(self.config.get_report_path(), "xb") as file:
+			path = self.config.get_report_path()
+			with open(path, "xb") as file:
 				file.write(pdfdata)
 				self.config.writeLog("Created new report: " + path)
 			taskname = "XYZ" # task name
-			tasktime = datetime.datetime.now().replace(microsecond=0) # date of start
+			tasktime = datetime.now()
 			
-			message = self.config.get_report_message(taskname)
-			subject = self.config.get_report_subject(tasktime)
+			message = self.config.get_report_message(tasktime)
+			subject = self.config.get_report_subject(taskname)
 			mail = self.config.get_value("SendTo")
-			system(f"mail -s \"{subject}\" -A {path} {mail} < \"{message}\"")
+			system(f"echo \"{message}\" | mail -s \"{subject}\" -A \"{path}\" {mail}")
 		except Exception as e:
 			print(f"[ERR] An error occured while creating report {report_id}")
 			print(e)
