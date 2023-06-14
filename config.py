@@ -1,0 +1,48 @@
+import json
+import bcrypt
+import time
+
+CONFIG_FILE = 'config.cfg'
+DEFAULT_CONFIG_FILE = 'default.cfg'
+
+class Configuration:
+	def __init__(self):
+		with open(CONFIG_FILE, 'r') as file:
+			self.data = json.load(file)
+		self.writeLog("Service started")
+	
+	def get_value(self, key):
+		return self.data.get(key)
+
+	def set_value(self, key, value):
+		self.data[key] = value
+		with open(CONFIG_FILE, 'w') as file:
+			json.dump(self.data, file, indent = 2)
+		self.writeLog('Set ' + key + ' to ' + value)
+
+	def restore_defaults(self):
+		with open(DEFAULT_CONFIG_FILE, 'r') as file:
+			self.data = json.load(file)
+		with open(CONFIG_FILE, 'w') as file:
+			json.dump(self.data, file, indent = 2)
+		self.writeLog('Restored default configuration')
+
+	def login(self, password):
+		with open(self.data['Password'], 'rb') as file:
+			if bcrypt.checkpw(password.encode('utf-8'), file.read()):
+				self.writeLog('Successfully logged in')
+				return True
+		self.writeLog('Login failed')
+		return False
+
+	def send_report(self, data):
+		filename = 'Security Scan Report ' + time.strftime('%y-%m-%d %H-%M-%S') + '.pdf'
+		path = self.get_value('Reports') + '/' + filename
+		with open(path, 'xb') as file:
+			file.write(data)
+		self.writeLog('Created new report: ' + path)
+		# send report
+
+	def writeLog(self, message):
+		with open(self.data['Logfile'], 'a') as file:
+			file.write(time.strftime('%d.%m.%y %H:%M') + '\t' + message + '\n')
