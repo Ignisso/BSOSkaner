@@ -1,10 +1,15 @@
+import pytz
+
+from base64 import b64decode
+from config import Configuration
+from datetime import datetime
+from icalendar import Calendar, Event
+
 from gvm.connections import TLSConnection
+from gvm.errors import GvmError
 from gvm.protocols.gmpv224 import Gmp
 from gvm.transforms import EtreeCheckCommandTransform
-from gvm.errors import GvmError
 from gvm.xml import pretty_print as xml_print
-from scanner import Configuration
-from base64 import b64decode
 
 class OpenVAS:
 
@@ -27,23 +32,25 @@ class OpenVAS:
 			id = val.get("id")
 			dictionary[name] = id
 		return dictionary
+
 	def __update_all(self):
 		self.__update_port_lists()
 		self.__update_scan_configs()
 		self.__update_scanners()
+		self.__update_schedules()
 		self.__update_targets()
 		self.__update_tasks()
 	
 	def get_reports(self):
-        return self.gmp.get_reports()
+		return self.gmp.get_reports()
 
-    def send_report(self, report_id):
-        # read base64 from xml
-        report = self.gmp.get_report(report_id, report_format_id = ReportFormatType.PDF)
-        b64 = report.getchildren()[0].getchildren()[8].tail
-        # decode base64 from xml
-        pdfdata = b64decode(b64)
-        self.config.send_report(pdfdata)
+	def send_report(self, report_id):
+		# read base64 from xml
+		report = self.gmp.get_report(report_id, report_format_id = ReportFormatType.PDF)
+		b64 = report.getchildren()[0].getchildren()[8].tail
+		# decode base64 from xml
+		pdfdata = b64decode(b64)
+		self.config.send_report(pdfdata)
 
 	def __update_port_lists(self):
 		self.port_lists = self.__xml_to_dict(self.gmp.get_port_lists().getchildren()[:-4]) #UNTESTED
@@ -51,6 +58,8 @@ class OpenVAS:
 		self.scan_configs = self.__xml_to_dict(self.gmp.get_scan_configs().getchildren()[:-4])
 	def __update_scanners(self):
 		self.scanners = self.__xml_to_dict(self.gmp.get_scanners().getchildren()[:-4])
+	def __update_schedules(self):
+		self.tasks = self.__xml_to_dict(self.gmp.get_schedules().getchildren()[:-4]) #UNTESTED
 	def __update_targets(self):
 		self.targets = self.__xml_to_dict(self.gmp.get_targets().getchildren()[:-4])
 	def __update_tasks(self):
@@ -81,6 +90,33 @@ class OpenVAS:
 	def get_scanners(self):
 		return self.gmp.get_scanners()
 
+	def create_schedule(self, name, datetime_str, frequency=None, count=None, interval=None):
+		try:
+			cal = Calendar()
+			cal.add("prodid", "-//Calendar//")
+			cal.add("version", "2.0")
+			event = Event()
+			event.add("dtstamp", datetime.now(tz=pytz.timezone("Europe/Warsaw")))
+			event.add("dtstart", datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S"))
+
+			cal.add_component(event)
+
+			self.gmp.create_schedule(name, cal.to_ical(), timezone="Europe/Warsaw")
+			self.__update_schedules()
+		except Exception as e:
+			print(f"[ERR] An error occured while creating a schedule {name}")
+			print(e)
+
+	def delete_schedule(self, schedule_id):
+		try:
+			self.gmp.delete_schedule(schedule_id)
+			self.__update_schedules()
+		except Exception as e:
+			print(f"[ERR] An error occured while deleting schedule {schedule_id}")
+			print(e)
+
+	def get_schedules(self):
+		return self.gmp.get_schedules()
 
 	def get_targets(self):
 		return self.gmp.get_targets()
