@@ -2,9 +2,9 @@ from gvm.connections import TLSConnection
 from gvm.protocols.gmpv224 import Gmp
 from gvm.transforms import EtreeCheckCommandTransform
 from gvm.errors import GvmError
-from gvm.xml import pretty_print as xml_print
-from scanner import Configuration
+from config import Configuration
 from base64 import b64decode
+from os import system
 
 class OpenVAS:
 
@@ -27,6 +27,7 @@ class OpenVAS:
 			id = val.get("id")
 			dictionary[name] = id
 		return dictionary
+	
 	def __update_all(self):
 		self.__update_port_lists()
 		self.__update_scan_configs()
@@ -38,12 +39,20 @@ class OpenVAS:
         return self.gmp.get_reports()
 
     def send_report(self, report_id):
-        # read base64 from xml
-        report = self.gmp.get_report(report_id, report_format_id = ReportFormatType.PDF)
-        b64 = report.getchildren()[0].getchildren()[8].tail
-        # decode base64 from xml
-        pdfdata = b64decode(b64)
-        self.config.send_report(pdfdata)
+		try:
+			report = self.gmp.get_report(report_id, report_format_id = ReportFormatType.PDF)
+			b64 = report.getchildren()[0].getchildren()[8].tail
+			pdfdata = b64decode(b64)
+			with open(self.config.get_report_path(), "xb") as file:
+				file.write(pdfdata)
+				self.config.writeLog("Created new report: " + path)
+			
+			subject = self.config.get_report_subject("XYZ")
+			mail = self.config.get_value("SendTo")
+			system(f"mail -s \"{subject}\" -A {path} {mail} < msg")
+		except Exception as e:
+			print(f"[ERR] An error occured while creating report {report_id}")
+			print(e)
 
 	def __update_port_lists(self):
 		self.port_lists = self.__xml_to_dict(self.gmp.get_port_lists().getchildren()[:-4]) #UNTESTED
