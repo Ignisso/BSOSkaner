@@ -5,6 +5,7 @@ from gvm.errors import GvmError
 from config import Configuration
 from base64 import b64decode
 from os import system
+from datetime import datetime
 
 class OpenVAS:
 
@@ -46,10 +47,13 @@ class OpenVAS:
 			with open(self.config.get_report_path(), "xb") as file:
 				file.write(pdfdata)
 				self.config.writeLog("Created new report: " + path)
+			taskname = "XYZ" # task name
+			tasktime = datetime.datetime.now().replace(microsecond=0) # date of start
 			
-			subject = self.config.get_report_subject("XYZ")
+			message = self.config.get_report_message(taskname)
+			subject = self.config.get_report_subject(tasktime)
 			mail = self.config.get_value("SendTo")
-			system(f"mail -s \"{subject}\" -A {path} {mail} < msg")
+			system(f"mail -s \"{subject}\" -A {path} {mail} < \"{message}\"")
 		except Exception as e:
 			print(f"[ERR] An error occured while creating report {report_id}")
 			print(e)
