@@ -1,4 +1,4 @@
-from openvas-lib import OpenVAS
+from openvaslib import OpenVAS
 from gvm.xml import pretty_print as xml_print
 
 OpenVAS = OpenVAS("192.168.0.227", 9390, "admin", "admin")
