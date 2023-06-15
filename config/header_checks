@@ -1,0 +1,1 @@
+/^From:[[:space:]]+(.*)/ REPLACE From: "Security Scanner Notification" <bsoskaner@linux.pl>
