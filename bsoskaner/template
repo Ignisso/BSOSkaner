@@ -1,0 +1,21 @@
+Dear {USERNAME},
+
+We hope this email finds you well. We are pleased to provide you with the comprehensive security scan report conducted by BSOSkaner, your trusted security scanner. This report encompasses a thorough assessment of the security posture of your system and aims to assist you in identifying vulnerabilities and enhancing your overall security framework.
+
+Report Summary:
+
+Scan Date and Time: {DATETIME}
+Scan Duration: {DURATION}
+Scan Type: {SCAN_CONFIG}
+
+Please note that while OpenVAS strives to provide accurate and reliable results, it is essential to validate and verify the identified vulnerabilities in your specific environment.
+
+Accessing the Report:
+Final report can be found in attachments to this mail
+
+We are committed to assisting you in securing your system effectively. If you have any questions, concerns, or require further assistance, please do not hesitate to reach out to our support team at {MAIL}.
+
+Thank you for choosing BSOSkaner as your security partner. Together, we can ensure a robust and resilient security infrastructure for your organization.
+
+Best regards,
+BSOSkaner Team
