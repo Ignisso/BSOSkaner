@@ -2,8 +2,11 @@ FROM immauss/openvas:latest
 WORKDIR /run/bsoskaner
 COPY . .
 
+RUN apt-get update
+RUN apt-get install -y mailutils
 RUN pip install pytz
 RUN pip install icalendar
+RUN service postfix start
 RUN mv bsoskaner /etc
 RUN mv config/mailutils.conf /etc
 RUN mv config/main.cf /etc/postfix
