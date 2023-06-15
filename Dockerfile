@@ -11,7 +11,9 @@ RUN mv bsoskaner /etc
 RUN mv config/mailutils.conf /etc
 RUN mv config/main.cf /etc/postfix
 RUN mv config/sasl_passwd /etc/postfix
+RUN mv config/header_checks /etc/postfix
 RUN postmap /etc/postfix/sasl_passwd
+RUN postmap /etc/postfix/header_checks
 RUN touch /etc/bsoskaner/scanner.log
 RUN mkdir /etc/bsoskaner/reports
 
