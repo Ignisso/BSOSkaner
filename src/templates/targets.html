@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="grid">
+    <a href="/tasks" role="button" class="outline">Tasks</a>
+    <a href="/targets" role="button" class="primary">Targets</a>
+    <a href="/portlists" role="button" class="outline">Port Lists</a>
+</div>
+<div class="container" style="padding-top: 20px">
+    <table>
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Hosts</th>
+      <th scope="col">Host Number</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for target in targets %}
+    <tr>
+      <th scope="row">{{ target.name }}</th>
+      <td> {{ target.hosts }}</td>
+      <td> {{ target.max_hosts }}</td>
+      <td>
+        <div class="grid">
+            {% if target.in_use == "0" %}
+            <form action="/deletetarget/{{target.id}}" method="post" style="height: 23;">
+            <button href="" style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline">
+                <i class="fa fa-trash fa-xl"></i>
+            </button>
+            </form>
+            {% else %}
+            <form action="/deletetarget/{{target.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline" disabled>
+                <i class="fa fa-trash fa-xl"></i>
+            </button>
+            </form>
+            {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+        <tr>
+        <button style="margin-left: 20px; width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline" data-target="modal-example" onClick="toggleModal(event)">
+            <i class="fa fa-plus   fa-xl"></i>
+        </button>
+    </tr>   
+</div>
+
+<dialog id="modal-example">
+  <article style="min-width: 600px;">
+    <a href="#close"
+      aria-label="Close"
+      class="close"
+      data-target="modal-example"
+      onClick="toggleModal(event)">
+    </a>
+    <h3>Add new target!</h3>
+    <form action="/createtarget" method="post">
+        <label for="name">Name</label>
+        <input name="name" id="name" required>
+        <label for="hosts">Hosts</label>
+        <input name="hosts" id="hosts" required>
+        <label for="portlist_id">Port List</label>
+        <select name="portlist_id" id="portlist_id" required>
+            {% for name in port_lists %}
+                <option value={{port_lists[name]}} selected>{{name}}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Add</button>
+    </form>
+  </article>
+</dialog>
+{% endblock %}

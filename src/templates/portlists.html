@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="grid">
+    <a href="/tasks" role="button" class="outline">Tasks</a>
+    <a href="/targets" role="button" class="outline">Targets</a>
+    <a href="/portlists" role="button" class="primary">Port Lists</a>
+</div>
+<div class="container" style="padding-top: 20px">
+    <table>
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">All Ports</th>
+      <th scope="col">TCP</th>
+      <th scope="col">UDP</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for port_list in port_lists %}
+    <tr>
+      <th scope="row">{{ port_list.name }}</th>
+      <td> {{ port_list.all }}</td>
+      <td> {{ port_list.tcp }}</td>
+      <td> {{ port_list.udp }}</td>
+      <td>
+        <div class="grid">
+            {% if port_list.in_use == "0" %}
+            <form action="/deleteportlist/{{port_list.id}}" method="post" style="height: 23;">
+            <button href="" style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline">
+                <i class="fa fa-trash fa-xl"></i>
+            </button>
+            </form>
+            {% else %}
+            <form action="/deleteportlist/{{port_list.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline" disabled>
+                <i class="fa fa-trash fa-xl"></i>
+            </button>
+            </form>
+            {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+        <tr>
+        <button style="margin-left: 20px; width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline" data-target="modal-example" onClick="toggleModal(event)">
+            <i class="fa fa-plus   fa-xl"></i>
+        </button>
+    </tr>   
+</div>
+
+<dialog id="modal-example">
+  <article style="min-width: 600px;">
+    <a href="#close"
+      aria-label="Close"
+      class="close"
+      data-target="modal-example"
+      onClick="toggleModal(event)">
+    </a>
+    <h3>Add new port list!</h3>
+    <form action="/createportlist" method="post">
+        <label for="name">Name</label>
+        <input name="name" id="name" required>
+        <label for="ports">Port range</label>
+        <input name="ports" id="ports" required>
+        <button type="submit">Add</button>
+    </form>
+  </article>
+</dialog>
+{% endblock %}

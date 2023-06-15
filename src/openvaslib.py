@@ -14,6 +14,10 @@ from gvm.xml import pretty_print as xml_print
 class OpenVAS:
 
 	def __init__(self, hostname, port, username, password):
+		self.hostname = hostname
+		self.port = port
+		self.username = username
+		self.password = password
 		connection = TLSConnection(hostname=hostname, port=port)
 		transform = EtreeCheckCommandTransform()
 		
@@ -41,6 +45,12 @@ class OpenVAS:
 		self.__update_targets()
 		self.__update_tasks()
 	
+	def reconnect(self):
+		connection = TLSConnection(hostname=self.hostname, port=self.port)
+		transform = EtreeCheckCommandTransform()
+		self.gmp = Gmp(connection=connection, transform=transform)
+		self.gmp.authenticate(self.username, self.password)
+
 	def get_reports(self):
 		return self.gmp.get_reports()
 
@@ -80,6 +90,7 @@ class OpenVAS:
 		try:
 			self.gmp.create_port_list(name, port_range)
 			self.__update_port_lists()
+			print(f"[DEBUG] New port_list created {name}")
 		except Exception as e:
 			print("[ERR] An error occured while creating a port list")
 			print(e)
@@ -136,6 +147,7 @@ class OpenVAS:
 		try:
 			self.gmp.create_target(name, hosts=hosts, port_list_id=port_list_id)
 			self.__update_targets()
+			print(f"[DEBUG] New target created {name}")
 		except Exception as e:
 			print(f"[ERR] An error occured while creating a target {name}")
 			print(e)
@@ -148,12 +160,13 @@ class OpenVAS:
 			print(f"[ERR] An error occured while deleting target {target_id}")
 			print(e)
 
-	def create_task(self, name, config_id, target_id, scanner_id):
+	def create_task(self, name, config_id, target_id, scanner_id, schedule_id=None):
 		try:
 			if name in self.tasks.keys():
 				raise Exception("Error: Task already exists")
 			self.gmp.create_task(name, config_id, target_id, scanner_id, schedule_id=schedule_id)
 			self.__update_tasks()
+			print(f"[DEBUG] New task created {name}")
 		except Exception as e:
 			print(f"[ERR] An error occured while creating a task {name}")
 			print(e)
@@ -171,6 +184,7 @@ class OpenVAS:
 
 	def start_task(self, task_id):
 		self.gmp.start_task(task_id)
+		print(f"[DEBUG] Task {task_id} has started")
 
 	def resume_task(self, task_id):
 		self.gmp.resume_task(task_id)
@@ -180,3 +194,6 @@ class OpenVAS:
 
 	def get_version(self):
 		return self.gmp.get_version()
+
+	def is_connected(self):
+		return self.gmp.is_connected()

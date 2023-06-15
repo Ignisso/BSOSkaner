@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="grid">
+    <a href="/tasks" role="button" class="primary">Tasks</a>
+    <a href="/targets" role="button" class="outline">Targets</a>
+    <a href="/portlists" role="button" class="outline">Port Lists</a>
+</div>
+<div class="container" style="padding-top: 20px">
+    <table>
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Status</th>
+      <th scope="col">Reports</th>
+      <th scope="col">Last Report</th>
+      <th scope="col">Severity</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for task in tasks %}
+    <tr>
+      <th scope="row">{{ task.name }}</th>
+      {% if task.status == "Running" %}
+      <td> <progress value={{task.progress}} max="100"></progress> </td>
+      {% elif task.status == "Stopped" %}
+      <td style="color: yellow;"> {{ task.status }}</td>
+      {% elif task.status == "New" %}
+      <td style="color: blue;"> {{ task.status }}</td>
+      {% elif task.status == "Done" %}
+      <td style="color: green;"> {{ task.status }}</td>
+      {% elif task.status == "Requested" or task.status == "Queued" %}
+      <td> <progress></progress></td>
+      {% else %}
+      <td> {{ task.status }}</td>
+      {% endif %}
+      <td> {{ task.reports }}</td>
+      <td> {{ task.last_report }}</td>
+      
+      {% if task.warning == "1" %}
+      <td style="color: lightblue;"> {{ task.severity }}</td>
+      {% elif task.warning == "2" %}
+      <td style="color: orange;"> {{ task.severity }}</td>
+      {% elif task.warning == "3" %}
+      <td style="color: red;"> {{ task.severity }}</td>
+      {% else %}
+      <td> {{ task.severity }}</td>
+      {% endif %}
+      <td>
+        <div class="grid">
+            {% if task.status == "Running" %}
+            <div>
+            <form action="/stoptask/{{task.id}}" method="post" style="height: 23;">
+            <button href="" style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline">
+                <i class="fa fa-pause   fa-xl"></i>
+            </button>
+            </form>
+            </div>
+            {% elif task.status == "Stopped" %}
+            <div>
+            <form action="/resumetask/{{task.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline">
+                <i class="fa fa-play fa-xl"></i>
+            </button>
+            </form>
+            </div>
+            {% elif task.status == "New" or task.status == "Done"%}
+            <div>
+            <form action="/starttask/{{task.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline">
+                <i class="fa fa-play fa-xl"></i>
+            </button>
+            </form>
+            </div>
+            {% else %}
+            <div>
+            <form action="/starttask/{{task.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline" disabled>
+                <i class="fa fa-play fa-xl"></i>
+            </button>
+            </form>
+            </div>
+            {% endif %}
+            <div>
+            <form action="/starttask/{{task.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline">
+                <i class="fa fa-refresh   fa-xl"></i>
+            </button>
+            </form>
+            </div>
+            <div>
+            {% if task.in_use == "0" %}
+            <form action="/deletetask/{{task.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline">
+                <i class="fa fa-trash   fa-xl"></i>
+            </button>
+            </form>
+            </div>
+            {% else %}
+            <form action="/deletetask/{{task.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline" disabled>
+                <i class="fa fa-trash   fa-xl"></i>
+            </button>
+            </form>
+            </div>
+            {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+        <tr>
+        <button style="margin-left: 20px; width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline" data-target="modal-example" onClick="toggleModal(event)">
+            <i class="fa fa-plus   fa-xl"></i>
+        </button>
+    </tr>   
+</div>
+
+<dialog id="modal-example">
+  <article style="min-width: 600px;">
+    <a href="#close"
+      aria-label="Close"
+      class="close"
+      data-target="modal-example"
+      onClick="toggleModal(event)">
+    </a>
+    <h3>Add new task!</h3>
+    <form action="/createtask" method="post">
+        <label for="name">Name</label>
+        <input name="name" id="name" required>
+        <label for="target_id">Scan targets</label>
+        <select name="target_id" id="target_id" required>
+            {% for name in targets %}
+                <option value={{targets[name]}} selected>{{name}}</option>
+            {% endfor %}
+        </select>
+        <label for="config_id">Scanner Config</label>
+        <select name="config_id" id="config_id" required>
+            {% for name in scan_configs %}
+                <option value={{scan_configs[name]}} selected>{{name}}</option>
+            {% endfor %}
+        </select>
+        <label for="scanner_id">Scanner</label>
+        <select name="scanner_id" id="scanner_id" required>
+            {% for name in scanners %}
+                <option value={{scanners[name]}} selected>{{name}}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Add</button>
+    </form>
+  </article>
+</dialog>
+{% endblock %}
