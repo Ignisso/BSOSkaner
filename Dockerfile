@@ -8,7 +8,7 @@ RUN pip install pytz
 RUN pip install icalendar
 RUN postconf maillog_file=/var/log/mail
 RUN service postfix start
-RUN mkdir bsoskaner
+RUN mkdir /etc/bsoskaner
 RUN mv config/template /etc/bsoskaner
 RUN mv config/mailutils/* /etc
 RUN mv config/postfix/* /etc/postfix
