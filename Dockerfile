@@ -22,4 +22,4 @@ EXPOSE 8080
 EXPOSE 9390
 EXPOSE 5000
 
-ENTRYPOINT ["start.sh"]
+ENTRYPOINT ["bash", "start.sh"]
