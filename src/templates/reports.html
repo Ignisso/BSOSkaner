@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="grid">
+    <a href="/tasks" role="button" class="outline">Tasks</a>
+    <a href="/reports" role="button" class="primary">Reports</a>
+    <a href="/targets" role="button" class="outline">Targets</a>
+    <a href="/hosts" role="button" class="outline">Hosts</a>
+    <a href="/portlists" role="button" class="outline">Port Lists</a>
+</div>
+<div class="container" style="padding-top: 20px">
+    <table>
+  <thead>
+    <tr>
+      <th scope="col">Date</th>
+      <th scope="col">Status</th>
+      <th scope="col">Task</th>
+      <th scope="col">Severity</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for report in reports %}
+    <tr>
+      <th scope="row">{{ report.name }}</th>
+      {% if report.status == "Running" %}
+      <td> <progress value={{report.progress}} max="100"></progress> </td>
+      {% elif report.status == "Stopped" %}
+      <td style="color: yellow;"> {{ report.status }}</td>
+      {% elif report.status == "New" %}
+      <td style="color: blue;"> {{ report.status }}</td>
+      {% elif report.status == "Done" %}
+      <td style="color: green;"> {{ report.status }}</td>
+      {% elif report.status == "Requested" or report.status == "Queued" %}
+      <td> <progress></progress></td>
+      {% else %}
+      <td> {{ report.status }}</td>
+      {% endif %}
+      <td> {{ report.task_name }}</td>
+      
+      {% if report.severity|float >= 7.0 %}
+      <td style="color: darkred;"> {{ report.severity }}</td>
+      {% elif report.severity|float  >= 4.0 %}
+      <td style="color: orange;"> {{ report.severity }}</td>
+      {% elif report.severity|float >= 0.0 %}
+      <td style="color: lightblue;"> {{ report.severity }}</td>
+      {% elif report.severity  < "0.0" %}
+      <td></td>
+      {% else %}
+      <td> {{ report.severity }}</td>
+      {% endif %}
+      <td>
+        <div class="grid">
+            {% if report.in_use == "0" %}
+            <form action="/deletereport/{{report.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline">
+                <i class="fa fa-trash   fa-xl"></i>
+            </button>
+            </form>
+            <form action="/downloadreport/{{report.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline">
+                <i class="fa fa-download   fa-xl"></i>
+            </button>
+            </form>
+            </div>
+            {% else %}
+            <form action="/deletereport/{{report.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline" disabled>
+                <i class="fa fa-trash   fa-xl"></i>
+            </button>
+            </form>
+            <form action="/downloadreport/{{report.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline" disabled>
+                <i class="fa fa-download   fa-xl"></i>
+            </button>
+            </form>
+            </div>
+            {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}

@@ -6,5 +6,11 @@ OpenVAS = OpenVAS("192.168.0.227", 9390, "admin", "admin")
 #OpenVAS.create_target("Localhost", ["192.168.0.227"], OpenVAS.port_lists["TCP&UDP 1024 Ports"])
 #OpenVAS.create_task("Localhost Scan", OpenVAS.scan_configs["Base"], OpenVAS.targets["Localhost"], OpenVAS.scanners["OpenVAS Default"])
 #OpenVAS.start_task(OpenVAS.tasks["Localhost Scan"])
-#xml_print(OpenVAS.get_schedules())
-OpenVAS.send_report("8f2e22ac-d94b-4883-a531-b2c4ccb7c010")
+hosts = OpenVAS.get_hosts()
+
+for host in hosts[:-4]:
+    print(host.get("id"))
+    print(host.find("name").text)
+    print(host.find("in_use").text)
+    print(host.find("host").find("severity").find("value").text)
+    xml_print(host.find("host").findall("detail"))

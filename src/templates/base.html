@@ -14,10 +14,11 @@
     </div>
     <div>
         <ul>
-            <li><a href="/tasks" role="button" class="outline">Dashboard</a></li>
             {% if not session.get("username") %}
                 <li><a href="/login" role="button">Log In</a></li>
             {% else %}
+                <li><a href="/tasks" role="button" class="outline">Dashboard</a></li>
+                <li><a href="/settings" role="button" class="outline">Settings</a></li>
                 <li><form action="/logout" method="post" style="height: 23;">
                     <button type="submit" role="button">Log Out</button>
                 </form></li> 

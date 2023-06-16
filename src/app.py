@@ -145,9 +145,73 @@ def portlists():
         in_use = port_list.find("in_use").text
         tcp = port_list.find("port_count").getchildren()[1].text
         udp = port_list.find("port_count").getchildren()[2].text
-        port_listsDTO.append({"id": id, "name": name, "in_use": in_use, "all": tcp+udp, "tcp": tcp, "udp": udp})
+        port_listsDTO.append({"id": id, "name": name, "in_use": in_use, "all": str(int(tcp)+int(udp)), "tcp": tcp, "udp": udp})
 
     return render_template("portlists.html", port_lists=port_listsDTO)
+
+@app.route("/deletereport/<report_id>", methods = ["POST"])
+def deletereport(report_id):
+    OpenVAS.delete_report(report_id)
+    return redirect("/reports")
+
+@app.route("/downloadreport/<report_id>", methods = ["POST"])
+def downloadreport(report_id):
+    def stream_data(data):
+        return OpenVAS.export_report(report_id)
+
+    return stream_data(report_id), {"Content-Type": "file/pdf", "Content-Disposition": f"attachment; filename=\"Report-{report_id}.pdf\""}
+
+@app.route("/deletehost/<host_id>", methods = ["POST"])
+def deletehost(host_id):
+    OpenVAS.delete_host(host_id)
+    return redirect("/hosts")
+
+@app.route("/hosts")
+def hosts():
+    if not session.get("username"):
+        return redirect("/login")
+    hosts = OpenVAS.get_hosts()
+
+    hostsDTO = []
+    for host in hosts[:-4]:
+        id = host.get("id")
+        name = host.find("name").text
+        in_use = host.find("in_use").text
+        severity = host.find("host").find("severity").find("value").text
+        traceroute = ""
+        if len(host.find("host").findall("detail")) > 0:
+            traceroute = host.find("host").findall("detail")[-1].find("value").text
+        hostsDTO.append({"id": id, "name": name, "in_use": in_use, "traceroute": traceroute, "severity": severity})
+
+    return render_template("hosts.html", hosts=hostsDTO)
+
+@app.route("/reports")
+def reports():
+    if not session.get("username"):
+        return redirect("/login")
+    reports = OpenVAS.get_reports(filter_string="sort-reverse=date")
+
+    reportsDTO = []
+    for report in reports[:-4]:
+        id = report.find("report").get("id")
+        name = report.find("name").text
+        task_name = report.find("task").find("name").text
+        in_use = report.find("in_use").text
+        status = report.find("report").find("scan_run_status").text
+        progress = report.find("report").find("task").find("progress").text
+        severity = report.find("report").find("severity").find("full").text
+        reportsDTO.append({"id": id, "name": name, "in_use": in_use, "task_name": task_name, "status": status, "progress": progress, "severity": severity})
+
+    return render_template("reports.html", reports=reportsDTO)
+
+@app.route("/settings")
+def settings():
+    if not session.get("username"):
+        return redirect("/login")
+
+    return render_template("settings.html")
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

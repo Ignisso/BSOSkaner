@@ -53,14 +53,25 @@ class OpenVAS:
 		self.gmp = Gmp(connection=connection, transform=transform)
 		self.gmp.authenticate(self.username, self.password)
 
-	def get_reports(self):
-		return self.gmp.get_reports()
+	def export_report(self, report_id):
+		report = self.gmp.get_report(report_id, report_format_id = ReportFormatType.PDF)
+		b64 = report.getchildren()[0].getchildren()[8].tail
+		pdfdata = b64decode(b64)
+		
+		return pdfdata		
+	def get_reports(self, filter_string=None):
+		return self.gmp.get_reports(filter_string=filter_string)
 
+	def delete_report(self, report_id):
+		try:
+			self.gmp.delete_report(report_id)
+		except Exception as e:
+			print(f"[ERR] An error occured while deleting report {report_id}")
+			print(e)
+	
 	def send_report(self, report_id):
 		try:
-			report = self.gmp.get_report(report_id, report_format_id = ReportFormatType.PDF)
-			b64 = report.getchildren()[0].getchildren()[8].tail
-			pdfdata = b64decode(b64)
+			pdfdata = self.export_report(report_id)
 			path = self.config.get_report_path()
 			with open(path, "xb") as file:
 				file.write(pdfdata)
@@ -200,4 +211,14 @@ class OpenVAS:
 
 	def is_connected(self):
 		return self.gmp.is_connected()
+
+	def get_hosts(self):
+		return self.gmp.get_hosts()
+
+	def delete_host(self, host_id):
+		try:
+			self.gmp.delete_host(host_id)
+		except Exception as e:
+			print(f"[ERR] An error occured while deleting host {host_id}")
+			print(e)
 

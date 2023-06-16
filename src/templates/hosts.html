@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="grid">
+    <a href="/tasks" role="button" class="outline">Tasks</a>
+    <a href="/reports" role="button" class="outline">Reports</a>
+    <a href="/targets" role="button" class="outline">Targets</a>
+    <a href="/hosts" role="button" class="primary">Hosts</a>
+    <a href="/portlists" role="button" class="outline">Port Lists</a>
+</div>
+<div class="container" style="padding-top: 20px">
+    <table>
+  <thead>
+    <tr>
+      <th scope="col">Address IP</th>
+      <th scope="col"></th>
+      <th scope="col"></th>
+      <th scope="col">Severity</th>
+      <th scope="col"></th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for host in hosts %}
+    <tr>
+      <th scope="row">{{ host.name }}</th>  
+      <td></td>
+      <td></td>
+      {% if host.severity|float >= 7.0 %}
+      <td style="color: darkred;"> {{ host.severity }}</td>
+      {% elif host.severity|float  >= 4.0 %}
+      <td style="color: orange;"> {{ host.severity }}</td>
+      {% elif host.severity|float >= 0.0 %}
+      <td style="color: lightblue;"> {{ host.severity }}</td>
+      {% elif host.severity  < "0.0" %}
+      <td></td>
+      {% else %}
+      <td> {{ host.severity }}</td>
+      {% endif %}
+      <td></td>
+      <td>
+        <div class="grid">
+            {% if host.in_use == "0" %}
+            <form action="/deletehost/{{host.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline">
+                <i class="fa fa-trash   fa-xl"></i>
+            </button>
+            </form>
+            </div>
+            {% else %}
+            <form action="/deletehost/{{host.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline" disabled>
+                <i class="fa fa-trash   fa-xl"></i>
+            </button>
+            </form>
+            </div>
+            {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% endblock %}
