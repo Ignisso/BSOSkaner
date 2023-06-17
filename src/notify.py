@@ -8,9 +8,9 @@ from os import environ
 
 OpenVAS = None
 if (environ.get('RUNNING_IN_DOCKER') is not None):
-    OpenVAS = openvas("localhost", 9390, "admin", "admin")
+	OpenVAS = openvas("localhost", 9390, "admin", "admin")
 else:
-    OpenVAS = openvas("192.168.0.227", 9390, "admin", "admin")
+	OpenVAS = openvas("localhost", 9390, "admin", "admin")
 
 if __name__ == "__main__":
 	while True:
@@ -25,4 +25,6 @@ if __name__ == "__main__":
 
 			if status == "Done" and dateutil.parser.parse(name) + timedelta(minutes=2) >= datetime.now(tz=pytz.utc):
 				OpenVAS.send_report(id)
-		sleep(60)
+			else:
+				print("No reports found ", datetime.now(pytz.utc))
+		sleep(10)

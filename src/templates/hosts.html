@@ -11,15 +11,13 @@
     <a href="/hosts" role="button" class="primary">Hosts</a>
     <a href="/portlists" role="button" class="outline">Port Lists</a>
 </div>
+<div class="grid">
 <div class="container" style="padding-top: 20px">
     <table>
   <thead>
     <tr>
       <th scope="col">Address IP</th>
-      <th scope="col"></th>
-      <th scope="col"></th>
       <th scope="col">Severity</th>
-      <th scope="col"></th>
       <th scope="col">Actions</th>
     </tr>
   </thead>
@@ -27,20 +25,16 @@
     {% for host in hosts %}
     <tr>
       <th scope="row">{{ host.name }}</th>  
-      <td></td>
-      <td></td>
       {% if host.severity|float >= 7.0 %}
       <td style="color: darkred;"> {{ host.severity }}</td>
       {% elif host.severity|float  >= 4.0 %}
       <td style="color: orange;"> {{ host.severity }}</td>
-      {% elif host.severity|float >= 0.0 %}
+      {% elif host.severity|float > 0.0 %}
       <td style="color: lightblue;"> {{ host.severity }}</td>
       {% elif host.severity  < "0.0" %}
-      <td></td>
       {% else %}
       <td> {{ host.severity }}</td>
       {% endif %}
-      <td></td>
       <td>
         <div class="grid">
             {% if host.in_use == "0" %}
@@ -64,6 +58,59 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
+<div class="container" style="padding-top: 20px">
+<div id="container"></div>
+    <script>
+      anychart.onDocumentReady(function () {
+        var json = {{ json|safe }}
+        var chart = anychart.graph(json);
+
+        chart.background().fill("#11191f");
+        chart.nodes().labels().enabled(true);
+        chart.nodes().labels().fontSize(12);
+        chart.nodes().labels().fontWeight(400);
+        chart.nodes().labels().fontColor("#FFFFFF");
+
+        chart.nodes().normal().height(15);
+        chart.nodes().hovered().height(20);
+
+        chart.edges().normal().stroke("#1095C1", 2);
+        chart.edges().hovered().stroke("#1095C1", 3);
+
+        var red = chart.group("red");
+        var orange = chart.group("orange");
+        var blue = chart.group("blue");
+        var grey = chart.group("grey");
+        var white = chart.group("white");
+
+        if (red) {
+            red.normal().fill("#D80000");
+            red.normal().stroke("#A80000", 2);
+        }
+        if (orange) {
+            orange.normal().fill("#FFA500");
+            orange.normal().stroke("#CF0500", 2);
+        }
+        if (blue) {
+            blue.normal().fill("#87CEEB");
+            blue.normal().stroke("#579EBB", 2);
+        }
+        if (grey) {
+            grey.normal().fill("#DDDDDD");
+            grey.normal().stroke("#AAAAAA", 2);
+        }
+        if (white) {
+            white.normal().fill("#F0F0F0");
+            white.normal().stroke("#C0C0C   0", 2);
+        }
+
+        chart.layout().type("forced");
+
+        chart.container("container").draw();
+      });
+    </script>
+</div>
 </div>
 
 {% endblock %}
