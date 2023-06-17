@@ -23,8 +23,6 @@ class OpenVAS:
 		transform = EtreeCheckCommandTransform()
 		
 		self.config = Configuration()
-		if (environ.get('RUNNING_IN_DOCKER') is not None)
-			self.config.restore_defaults()
 		self.gmp = Gmp(connection=connection, transform=transform)
 		self.gmp.authenticate(username, password)
 			

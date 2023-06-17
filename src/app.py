@@ -172,18 +172,37 @@ def hosts():
         return redirect("/login")
     hosts = OpenVAS.get_hosts()
 
+    nodes = []
+    node_names = []
+    edges = []
     hostsDTO = []
     for host in hosts[:-4]:
         id = host.get("id")
         name = host.find("name").text
         in_use = host.find("in_use").text
         severity = host.find("host").find("severity").find("value").text
+        color = "grey"
+        if float(severity) >= 7.0:
+            color = "red"
+        elif float(severity)  >= 4.0:
+            color = "orange"
+        elif float(severity) > 0.0:
+            color = "blue"
+        nodes.append({"id": host.find("name").text, "group": color})
+        node_names.append(host.find("name").text)
         traceroute = ""
         if len(host.find("host").findall("detail")) > 0:
             traceroute = host.find("host").findall("detail")[-1].find("value").text
+            for neighbour in traceroute.split(","):
+                if neighbour not in node_names:
+                    nodes.append({"id": neighbour, "group": "white"})
+                
+                edges.append({ "from": host.find("name").text, "to": neighbour})
+
+                print({ "from": host.find("name").text, "to": neighbour}, flush=True)
         hostsDTO.append({"id": id, "name": name, "in_use": in_use, "traceroute": traceroute, "severity": severity})
 
-    return render_template("hosts.html", hosts=hostsDTO)
+    return render_template("hosts.html", hosts=hostsDTO, json={"nodes": nodes, "edges": edges})
 
 @app.route("/reports")
 def reports():
