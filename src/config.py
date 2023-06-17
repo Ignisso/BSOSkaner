@@ -2,12 +2,15 @@ import json
 from bcrypt import checkpw
 from time import strftime
 from datetime import datetime
+from os import environ
 
-CONFIG_FILE = "../config/config.cfg"
-DEFAULT_CONFIG_FILE = "../config/default.cfg"
+CONFIG_FILE = "config/config.cfg"
+DEFAULT_CONFIG_FILE = "config/default.cfg"
 
 class Configuration:
 	def __init__(self):
+		if (environ.get('RUNNING_IN_DOCKER') is not None):
+			self.restore_defaults()
 		with open(CONFIG_FILE, "r") as file:
 			self.data = json.load(file)
 		self.writeLog("Service started")

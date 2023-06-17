@@ -4,7 +4,7 @@ from base64 import b64decode
 from config import Configuration
 from datetime import datetime
 from icalendar import Calendar, Event
-from os import system, environ
+from os import system
 
 from gvm.connections import TLSConnection
 from gvm.errors import GvmError
