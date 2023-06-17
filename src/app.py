@@ -1,13 +1,18 @@
 from flask import *
 from flask_session import *
-from openvaslib import OpenVAS
+from openvaslib import OpenVAS as openvas
 from gvm.xml import pretty_print as xml_print
+from os import environ
 
 app = Flask(__name__)
 app.config["SESSION_PERMAMENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-OpenVAS = OpenVAS("192.168.0.227", 9390, "admin", "admin")    
+OpenVAS = None
+if (environ.get('RUNNING_IN_DOCKER') is not None):
+    OpenVAS = openvas("localhost", 9390, "admin", "admin")
+else:
+    OpenVAS = openvas("192.168.0.227", 9390, "admin", "admin")
 
 @app.before_request
 def before_request_func():

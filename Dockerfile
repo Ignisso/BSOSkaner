@@ -13,18 +13,19 @@ RUN mkdir /etc/bsoskaner
 RUN touch /etc/bsoskaner/scanner.log
 RUN mkdir /etc/bsoskaner/reports
 ENV RUNNING_IN_DOCKER=1
+ENV FLASK_APP=/run/bsoskaner/src/app.py
 
 COPY . .
 
+RUN mv single.sh /scripts
 RUN mv config/template /etc/bsoskaner
 RUN mv config/mailutils/* /etc
 RUN mv config/postfix/* /etc/postfix
 RUN postmap /etc/postfix/sasl_passwd
 RUN postmap /etc/postfix/header_checks
-RUN service postfix start
 
 EXPOSE 8080
 EXPOSE 9390
 EXPOSE 5000
 
-ENTRYPOINT ["bash", "start.sh"]
+ENTRYPOINT ["/scripts/start.sh"]

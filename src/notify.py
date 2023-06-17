@@ -3,9 +3,14 @@ import pytz
 import dateutil.parser
 from datetime import datetime, timedelta
 from time import sleep
-from openvaslib import OpenVAS
+from openvaslib import OpenVAS as openvas
+from os import environ
 
-OpenVAS = OpenVAS("192.168.0.227", 9390, "admin", "admin")
+OpenVAS = None
+if (environ.get('RUNNING_IN_DOCKER') is not None):
+    OpenVAS = openvas("localhost", 9390, "admin", "admin")
+else:
+    OpenVAS = openvas("192.168.0.227", 9390, "admin", "admin")
 
 if __name__ == "__main__":
 	while True:
@@ -13,11 +18,11 @@ if __name__ == "__main__":
 			OpenVAS.reconnect()
 		reports = OpenVAS.get_reports()
 
-		for report in reports[:-4]: 
+		for report in reports[:-4]:
 			id = report.find("report").get("id")
 			name = report.find("name").text
 			status = report.find("report").find("scan_run_status").text
 
-			if status == "Done" and dateutil.parser.parse(name) + timedelta(minutes=6) >= datetime.now(tz=pytz.utc):
+			if status == "Done" and dateutil.parser.parse(name) + timedelta(minutes=2) >= datetime.now(tz=pytz.utc):
 				OpenVAS.send_report(id)
-		sleep(5 * 3600)
+		sleep(60)
