@@ -1,1 +1,1 @@
-docker run --detach -p 8080:9392 -p 5000:5000 -p 9390:9390 --network host --name bsoskaner majumi/bsoskaner:1.0
+docker run --detach -p 8080:9392 -p 5000:5000 -p 9390:9390 --name bsoskaner majumi/bsoskaner:1.0

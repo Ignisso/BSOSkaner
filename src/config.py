@@ -4,8 +4,8 @@ from time import strftime
 from datetime import datetime
 from os import environ
 
-CONFIG_FILE = "config/config.cfg"
-DEFAULT_CONFIG_FILE = "config/default.cfg"
+CONFIG_FILE = "/run/bsoskaner/config/config.cfg"
+DEFAULT_CONFIG_FILE = "/run/bsoskaner/config/default.cfg"
 
 class Configuration:
 	def __init__(self):
