@@ -86,13 +86,13 @@ class OpenVAS:
 			print(e)
 
 	def __update_port_lists(self):
-		self.port_lists = self.__xml_to_dict(self.gmp.get_port_lists().getchildren()[:-4]) #UNTESTED
+		self.port_lists = self.__xml_to_dict(self.gmp.get_port_lists().getchildren()[:-4])
 	def __update_scan_configs(self):
 		self.scan_configs = self.__xml_to_dict(self.gmp.get_scan_configs().getchildren()[:-4])
 	def __update_scanners(self):
 		self.scanners = self.__xml_to_dict(self.gmp.get_scanners().getchildren()[:-4])
 	def __update_schedules(self):
-		self.tasks = self.__xml_to_dict(self.gmp.get_schedules().getchildren()[:-4]) #UNTESTED
+		self.schedules = self.__xml_to_dict(self.gmp.get_schedules().getchildren()[:-4])
 	def __update_targets(self):
 		self.targets = self.__xml_to_dict(self.gmp.get_targets().getchildren()[:-4])
 	def __update_tasks(self):
@@ -124,15 +124,19 @@ class OpenVAS:
 	def get_scanners(self):
 		return self.gmp.get_scanners()
 
-	def create_schedule(self, name, datetime_str, frequency=None, count=None, interval=None):
+	def create_schedule(self, name, datetime_str, frequency=None, interval=0, until=None):
 		try:
 			cal = Calendar()
 			cal.add("prodid", "-//Calendar//")
 			cal.add("version", "2.0")
 			event = Event()
 			event.add("dtstamp", datetime.now(tz=pytz.timezone("Europe/Warsaw")))
-			event.add("dtstart", datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S"))
-
+			event.add("dtstart", datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M"))
+			event.add("tzid", "Europe/Warsaw")
+			if until is not None:
+				event.add("dtend", datetime.strptime(until, "%Y-%m-%dT%H:%M"))
+			if frequency is not None and frequency != "ONCE":
+				event.add("rrule", {"freq": frequency, "interval": interval})
 			cal.add_component(event)
 
 			self.gmp.create_schedule(name, cal.to_ical(), timezone="Europe/Warsaw")

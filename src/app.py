@@ -9,7 +9,7 @@ app.config["SESSION_PERMAMENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 OpenVAS = None
-if (environ.get('RUNNING_IN_DOCKER') is not None):
+if (environ.get('RUNNING_IN_DOCKER') is None):
     OpenVAS = openvas("localhost", 9390, "admin", "admin")
 else:
     OpenVAS = openvas("192.168.0.227", 9390, "admin", "admin")
@@ -63,7 +63,7 @@ def resumetask(task_id):
 
 @app.route("/createtask", methods = ["POST"])
 def createtask():
-    OpenVAS.create_task(request.form["name"], request.form["config_id"], request.form["target_id"], request.form["scanner_id"])
+    OpenVAS.create_task(request.form["name"], request.form["config_id"], request.form["target_id"], request.form["scanner_id"], schedule_id=request.form["schedule_id"])
     return redirect("/tasks")
 
 @app.route("/deletetask/<task_id>", methods = ["POST"])
@@ -95,7 +95,7 @@ def tasks():
             warning = task.getchildren()[-3].getchildren()[0].getchildren()[-2].find("warning").text
         tasksDTO.append({"id": id, "name": name, "in_use": in_use, "status": status, "progress": progress, "reports": report_count, "last_report": last_report, "severity": severity, "warning": warning})
 
-    return render_template("tasks.html", tasks=tasksDTO, scan_configs=OpenVAS.scan_configs, targets=OpenVAS.targets, scanners=OpenVAS.scanners)
+    return render_template("tasks.html", tasks=tasksDTO, scan_configs=OpenVAS.scan_configs, targets=OpenVAS.targets, scanners=OpenVAS.scanners, schedules=OpenVAS.schedules)
 
 @app.route("/createtarget", methods = ["POST"])
 def createtarget():
@@ -227,6 +227,66 @@ def reports():
         reportsDTO.append({"id": id, "name": name, "in_use": in_use, "task_name": task_name, "status": status, "progress": progress, "severity": severity})
 
     return render_template("reports.html", reports=reportsDTO)
+
+
+@app.route("/deleteschedule/<schedule_id>", methods = ["POST"])
+def deleteschedule(schedule_id):
+    OpenVAS.delete_schedule(schedule_id)
+    return redirect("/schedules")
+
+@app.route("/schedules")
+def schedules():
+    if not session.get("username"):
+        return redirect("/login")
+    schedules = OpenVAS.get_schedules()
+
+    schedulesDTO = []
+    for schedule in schedules[:-4]:
+        id = schedule.get("id")
+        name = schedule.find("name").text
+        in_use = schedule.find("in_use").text
+        dtstart = ""
+        freq = ""
+        interval = "1"
+        icalendar = schedule.find("icalendar").text.split("\n")
+        for property in icalendar:
+            if " 20" in property:
+                dtstart = f"{property[1:5]}-{property[5:7]}-{property[7:9]} {property[10:12]}:{property[12:14]}:{property[14:16]}"
+            if "DTSTART" in property:
+                dtstart = f"{property[8:12]}-{property[12:14]}-{property[14:16]} {property[17:19]}:{property[19:21]}:{property[21:23]}"
+            if "RRULE" in property:
+                rrule = property
+                rrule = rrule.split(":")[1].split(";")
+                for rule in rrule:
+                    if "FREQ" in rule:
+                        freq = rule[5:]
+                    if "INTERVAL" in rule:
+                        interval = rule[9:]
+        repeat = ""
+        if not (freq == "" or interval == ""):
+            if interval == "1":
+                repeat = f"Every {interval} {freq[:-2]}"
+            else:
+                repeat = f"Every {interval} {freq[:-2]}S"
+        schedulesDTO.append({"id": id, "name": name, "in_use": in_use, "dtstart": dtstart, "repeat": repeat})
+
+    return render_template("schedules.html", schedules=schedulesDTO)
+
+
+@app.route("/createschedule", methods = ["POST"])
+def createschedule():
+    frequency = None
+    interval=0
+    until=None
+    if "recurrence" in request.form:
+        frequency = request.form["recurrence"]
+    if "interval" in request.form and frequency != "once":
+        interval = int(request.form["interval"])
+    if "end" in request.form:
+        until = request.form["end"]
+    print(request.form, until)
+    OpenVAS.create_schedule(request.form["name"], request.form["start"], frequency=frequency, interval=interval, until=until)
+    return redirect("/schedules")
 
 @app.route("/settings")
 def settings():

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="grid">
+    <a href="/tasks" role="button" class="outline">Tasks</a>
+    <a href="/reports" role="button" class="outline">Reports</a>
+    <a href="/targets" role="button" class="outline">Targets</a>
+    <a href="/hosts" role="button" class="outline">Hosts</a>
+    <a href="/schedules" role="button" class="primary">Schedules</a>
+    <a href="/portlists" role="button" class="outline">Port Lists</a>
+</div>
+<div class="container" style="padding-top: 20px">
+    <table>
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">First run</th>
+      <th scope="col">Repeat</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for schedule in schedules %}
+    <tr>
+      <th scope="row">{{ schedule.name }}</th>
+      <th scope="row">{{ schedule.dtstart }}</th>
+      <th scope="row">{{ schedule.repeat }}</th>
+      <td>
+        <div class="grid">
+            {% if schedule.in_use == "0" %}
+            <form action="/deleteschedule/{{schedule.id}}" method="post" style="height: 23;">
+            <button href="" style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline">
+                <i class="fa fa-trash fa-xl"></i>
+            </button>
+            </form>
+            {% else %}
+            <form action="/deleteschedule/{{schedule.id}}" method="post" style="height: 23;">
+            <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline" disabled>
+                <i class="fa fa-trash fa-xl"></i>
+            </button>
+            </form>
+            {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+        <tr>
+        <button style="margin-left: 20px; width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline" data-target="modal-example" onClick="toggleModal(event)">
+            <i class="fa fa-plus   fa-xl"></i>
+        </button>
+    </tr>   
+</div>
+
+<dialog id="modal-example">
+  <article style="min-width: 600px;">
+    <a href="#close"
+      aria-label="Close"
+      class="close"
+      data-target="modal-example"
+      onClick="toggleModal(event)">
+    </a>
+    <h3>Add new schedule!</h3>
+    <form action="/createschedule" method="post">
+        <label for="name">Name</label>
+        <input name="name" id="name" required>
+        <label for="start">Start</label>
+        <input type="datetime-local" id="start" name="start">
+        <label for="recurrence">Repeat every</label>
+        <div class="grid">
+            <input name="interval" id="interval" type="number" min="1" value="1" disabled>
+            <select name="recurrence" id="recurrence" required>
+              <option value="ONCE" selected>Once</option>
+              <option value="HOURLY">Hour(s)</option>
+              <option value="DAILY">Day(s)</option>
+              <option value="WEEKLY">Week(s)</option>
+              <option value="MONTHLY">Month(s)</option>
+            </select>
+        </div>
+        <label for="switch">
+            Define end
+            <input type="checkbox" id="switch" name="switch" role="switch">
+        </label>
+        <input type="datetime-local" id="end" name="end" disabled>
+        <button type="submit">Add</button>
+    </form>
+
+  </article>
+</dialog>
+<script>
+$('#recurrence').change( (event) => {
+    if ($('#recurrence').prop("value") === "once") {
+        $('#interval').prop("disabled", true);  
+    } else {
+        $('#interval').prop("disabled", false);
+    }
+})
+$('#switch').change( (event) => {
+    if ($('#switch').prop("checked") === false) {
+        $('#end').prop("disabled", true);  
+    } else {
+        $('#end').prop("disabled", false);
+    }
+})
+
+</script>
+{% endblock %}

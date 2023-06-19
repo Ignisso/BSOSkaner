@@ -9,6 +9,7 @@
     <a href="/reports" role="button" class="outline">Reports</a>
     <a href="/targets" role="button" class="outline">Targets</a>
     <a href="/hosts" role="button" class="outline">Hosts</a>
+    <a href="/schedules" role="button" class="outline">Schedules</a>
     <a href="/portlists" role="button" class="outline">Port Lists</a>
 </div>
 <div class="container" style="padding-top: 20px">
@@ -139,6 +140,12 @@
         <select name="target_id" id="target_id" required>
             {% for name in targets %}
                 <option value={{targets[name]}} selected>{{name}}</option>
+            {% endfor %}
+        </select>
+        <label for="schedule_id">Schedule</label>
+        <select name="schedule_id" id="schedule_id" required>
+            {% for name in schedules %}
+                <option value={{schedules[name]}} selected>{{name}}</option>
             {% endfor %}
         </select>
         <label for="config_id">Scanner Config</label>
