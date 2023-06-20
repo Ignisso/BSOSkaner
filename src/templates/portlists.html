@@ -12,7 +12,7 @@
     <a href="/schedules" role="button" class="outline">Schedules</a>
     <a href="/portlists" role="button" class="primary">Port Lists</a>
 </div>
-<div class="container" style="padding-top: 20px">
+<div class="container-fluid" style="padding-top: 20px">
     <table>
   <thead>
     <tr>
@@ -70,8 +70,12 @@
     <form action="/createportlist" method="post">
         <label for="name">Name</label>
         <input name="name" id="name" required>
-        <label for="ports">Port range</label>
-        <input name="ports" id="ports" required>
+        <div class="grid">
+            <label for="tcp">TCP Ports</label>
+            <input name="tcp" id="tcp" >
+            <label for="udp">UDP Ports</label>
+            <input name="udp" id="udp" >
+        </div>
         <button type="submit">Add</button>
     </form>
   </article>

@@ -8,12 +8,5 @@ OpenVAS = OpenVAS("localhost", 9390, "admin", "admin")
 #OpenVAS.create_task("Localhost Scan", OpenVAS.scan_configs["Base"], OpenVAS.targets["Localhost"], OpenVAS.scanners["OpenVAS Default"])
 #OpenVAS.start_task(OpenVAS.tasks["Localhost Scan"])
 
-for schedule in OpenVAS.get_schedules()[:-4]: 
-    print(schedule.get("id"))
-    icalendar = schedule.find("icalendar").text.split("\n")
-    print(icalendar)
-    for property in icalendar:
-        if "DTSTART" in property:
-            print(property)
-        if "RRULE" in property:
-            print(property)
+for task in OpenVAS.get_port_lists()[:-4]: 
+    xml_print(task)

@@ -12,13 +12,14 @@
     <a href="/schedules" role="button" class="outline">Schedules</a>
     <a href="/portlists" role="button" class="outline">Port Lists</a>
 </div>
-<div class="container" style="padding-top: 20px">
+<div class="container-fluid" style="padding-top: 20px">
     <table>
   <thead>
     <tr>
       <th scope="col">Name</th>
       <th scope="col">Hosts</th>
       <th scope="col">Host Number</th>
+      <th scope="col">Port List</th>
       <th scope="col">Actions</th>
     </tr>
   </thead>
@@ -28,6 +29,7 @@
       <th scope="row">{{ target.name }}</th>
       <td> {{ target.hosts }}</td>
       <td> {{ target.max_hosts }}</td>
+      <td> {{ target.port_list }}</td>
       <td>
         <div class="grid">
             {% if target.in_use == "0" %}

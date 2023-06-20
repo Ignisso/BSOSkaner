@@ -12,7 +12,7 @@
     <a href="/schedules" role="button" class="outline">Schedules</a>
     <a href="/portlists" role="button" class="outline">Port Lists</a>
 </div>
-<div class="container" style="padding-top: 20px">
+<div class="container-fluid" style="padding-top: 20px;">
     <table>
   <thead>
     <tr>
@@ -20,6 +20,10 @@
       <th scope="col">Status</th>
       <th scope="col">Reports</th>
       <th scope="col">Last Report</th>
+      <th scope="col">Targets</th>
+      <th scope="col">Schedule</th>
+      <th scope="col">Type</th>
+      <th scope="col">Scanner</th>
       <th scope="col">Severity</th>
       <th scope="col">Actions</th>
     </tr>
@@ -31,11 +35,11 @@
       {% if task.status == "Running" %}
       <td> <progress value={{task.progress}} max="100"></progress> </td>
       {% elif task.status == "Stopped" %}
-      <td style="color: yellow;"> {{ task.status }}</td>
+      <td style="color: #ffd966; font-weight: bold;"> {{ task.status }}</td>
       {% elif task.status == "New" %}
-      <td style="color: blue;"> {{ task.status }}</td>
+      <td style="color: #1095c1; font-weight: bold;"> {{ task.status }}</td>
       {% elif task.status == "Done" %}
-      <td style="color: green;"> {{ task.status }}</td>
+      <td style="color: #00b300; font-weight: bold;"> {{ task.status }}</td>
       {% elif task.status == "Requested" or task.status == "Queued" %}
       <td> <progress></progress></td>
       {% else %}
@@ -44,12 +48,17 @@
       <td> {{ task.reports }}</td>
       <td> {{ task.last_report }}</td>
       
+      <td> {{ task.target }} </td>
+      <td> {{ task.schedule }} </td>
+      <td> {{ task.config }} </td>
+      <td> {{ task.scanner }} </td>
+
       {% if task.warning == "1" %}
-      <td style="color: lightblue;"> {{ task.severity }}</td>
+      <td style="color: #1095c1; font-weight: bold;"> {{ task.severity }}</td>
       {% elif task.warning == "2" %}
-      <td style="color: orange;"> {{ task.severity }}</td>
+      <td style="color: #ff6600; font-weight: bold;"> {{ task.severity }}</td>
       {% elif task.warning == "3" %}
-      <td style="color: red;"> {{ task.severity }}</td>
+      <td style="color: #cc0000; font-weight: bold;"> {{ task.severity }}</td>
       {% else %}
       <td> {{ task.severity }}</td>
       {% endif %}
