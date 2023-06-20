@@ -439,4 +439,3 @@ python3 /run/bsoskaner/src/notify.py &
 tail -F /usr/local/var/log/gvm/* &
 # This is part of making sure we shutdown postgres properly on container shutdown.
 wait $!
-
