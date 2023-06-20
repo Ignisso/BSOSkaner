@@ -2,7 +2,7 @@ import pytz
 
 from base64 import b64decode
 from config import Configuration
-from datetime import datetime
+from datetime import datetime, timedelta
 from icalendar import Calendar, Event
 from os import system
 
@@ -132,7 +132,6 @@ class OpenVAS:
 			event = Event()
 			event.add("dtstamp", datetime.now(tz=pytz.timezone("Europe/Warsaw")))
 			event.add("dtstart", datetime.strptime(datetime_str, "%Y-%m-%dT%H:%M"))
-			event.add("tzid", "Europe/Warsaw")
 			if until is not None:
 				event.add("dtend", datetime.strptime(until, "%Y-%m-%dT%H:%M"))
 			if frequency is not None and frequency != "ONCE":

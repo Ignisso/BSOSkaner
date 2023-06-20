@@ -2,13 +2,17 @@ from flask import *
 from flask_session import *
 from openvaslib import OpenVAS as openvas
 from gvm.xml import pretty_print as xml_print
+from datetime import datetime, timedelta
 from os import environ
-
+from config import Configuration
+import bcrypt
 app = Flask(__name__)
 app.config["SESSION_PERMAMENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 OpenVAS = None
+config = Configuration()
+
 if (environ.get('RUNNING_IN_DOCKER') is None):
     OpenVAS = openvas("localhost", 9390, "admin", "admin")
 else:
@@ -25,23 +29,24 @@ def index():
 
 @app.route("/login", methods = ["GET"])
 def login_get():
-    if not session.get("username"):
+    if session.get("username") != config.get_value("Username"):
         return render_template("login.html")
     else:
         return redirect("/tasks")
 
 @app.route("/login", methods = ["POST"])
 def login_post():
-    if request.form["username"] == "admin" and request.form["password"] == "admin":
-        session["username"] = "admin"
-        return redirect("/tasks")
-    else:
-        return render_template("login.html", error_text="No account found with the given credentials")
+    if request.form["username"] == config.get_value("Username"):
+        if config.login(request.form["password"]):
+            session["username"] = config.get_value("Username")
+            return redirect("/tasks")
+
+    return render_template("login.html", error_text="No account found with the given credentials")
 
 @app.route("/logout", methods = ["POST"])
 def logout():
     session["username"] = None
-    return redirect("/tasks")
+    return redirect("/")
 
 @app.route("/stoptask/<task_id>", methods = ["POST"])
 def stoptask(task_id):
@@ -249,22 +254,30 @@ def schedules():
         freq = ""
         interval = "1"
         icalendar = schedule.find("icalendar").text.split("\n")
-        for property in icalendar:
-            if " 20" in property:
-                dtstart = f"{property[1:5]}-{property[5:7]}-{property[7:9]} {property[10:12]}:{property[12:14]}:{property[14:16]}"
-            if "DTSTART" in property:
-                dtstart = f"{property[8:12]}-{property[12:14]}-{property[14:16]} {property[17:19]}:{property[19:21]}:{property[21:23]}"
-            if "RRULE" in property:
-                rrule = property
+        for prop in icalendar:
+            if " 20" in prop:
+                dtstart = datetime.strptime(prop[1:16], "%Y%m%dT%H%M%S") + timedelta(hours=2)
+            if "DTSTART" in prop and "DTSTART;" not in prop:
+                dtstart = datetime.strptime(prop[8:23], "%Y%m%dT%H%M%S") + timedelta(hours=2)
+            if "RRULE" in prop:
+                rrule = prop
                 rrule = rrule.split(":")[1].split(";")
                 for rule in rrule:
                     if "FREQ" in rule:
                         freq = rule[5:]
                     if "INTERVAL" in rule:
                         interval = rule[9:]
+            if "DURATION:PT0S" in prop:
+                freq = ""
         repeat = ""
         if not (freq == "" or interval == ""):
-            if interval == "1":
+            if freq == "DAILY":
+                if interval == "1":
+                    repeat = f"Every {interval} DAY"
+                else:
+                    repeat = f"Every {interval} DAYS"
+                    
+            elif interval == "1":
                 repeat = f"Every {interval} {freq[:-2]}"
             else:
                 repeat = f"Every {interval} {freq[:-2]}S"
@@ -275,12 +288,12 @@ def schedules():
 
 @app.route("/createschedule", methods = ["POST"])
 def createschedule():
-    frequency = None
+    frequency = "ONCE"
     interval=0
     until=None
     if "recurrence" in request.form:
         frequency = request.form["recurrence"]
-    if "interval" in request.form and frequency != "once":
+    if "interval" in request.form and frequency != "ONCE":
         interval = int(request.form["interval"])
     if "end" in request.form:
         until = request.form["end"]
@@ -293,8 +306,39 @@ def settings():
     if not session.get("username"):
         return redirect("/login")
 
-    return render_template("settings.html")
+    MailTemplate = None   
+    with open(config.get_value("MailTemplate"), "r") as file:
+        MailTemplate = file.read()
+     
+    return render_template("settings.html", SendTo=config.get_value("SendTo"), Username=config.get_value("Username"), MailTemplate=MailTemplate)
 
+@app.route("/savesettings", methods = ["POST"])
+def savesettings():
+    SendTo = None
+    if "SendTo" in request.form:
+        if request.form["SendTo"] != config.get_value("SendTo"):
+            config.set_value("SendTo", request.form["SendTo"])
+    
+    if "Username" in request.form:
+        if request.form["Username"] != config.get_value("Username"):
+            config.set_value("Username", request.form["Username"])
+
+    if "MailTemplate" in request.form:
+        fileContent = None
+        with open(config.get_value("MailTemplate"), "r") as file:
+            fileContent = file.read()
+
+        if fileContent != request.form["MailTemplate"]:
+            print(request.form["MailTemplate"])
+            with open(config.get_value("MailTemplate"), "wb") as file:
+                file.write(request.form["MailTemplate"].encode("utf-8"))
+
+    if "Password" in request.form:
+        if request.form["Password"] != "":
+            with open(config.get_value("Password"), "wb") as file:
+                file.write(bcrypt.hashpw(request.form["Password"].encode("utf-8"), bcrypt.gensalt()))
+
+    return redirect("/schedules")
 
 
 if __name__ == "__main__":

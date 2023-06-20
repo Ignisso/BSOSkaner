@@ -3,5 +3,23 @@
 {% block title %}Settings{% endblock %}
 
 {% block content %}
-    <p>Settings page</p>
+    <form action="/savesettings" method="post">
+        <label for="SendTo">Receiver Address</label>
+        <input type="email" name="SendTo" id="SendTo" value="{{SendTo}}" required>
+
+        <label for="Username">Username</label>
+        <input name="Username" id="Username" value="{{Username}}" required>
+
+        <label for="Password">Password</label>
+        <input type="Password" name="Password" id="Password">
+
+        <label for="MailTemplate">Mail Template</label>
+        <textarea style="height: 900px;" name="MailTemplate" id="MailTemplate" required>{{MailTemplate}}</textarea>
+
+        <div class="grid">
+            <a href="/tasks" role="button" class="outline" style="height:62px"> Cancel</a>  
+            <button type="submit">Save</button>          
+        </div>
+
+    </form>
 {% endblock %}
