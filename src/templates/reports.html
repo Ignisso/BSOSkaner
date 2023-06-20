@@ -12,7 +12,7 @@
     <a href="/schedules" role="button" class="outline">Schedules</a>
     <a href="/portlists" role="button" class="outline">Port Lists</a>
 </div>
-<div class="container" style="padding-top: 20px">
+<div class="container-fluid" style="padding-top: 20px">
     <table>
   <thead>
     <tr>
@@ -26,15 +26,15 @@
   <tbody>
     {% for report in reports %}
     <tr>
-      <th scope="row">{{ report.name }}</th>
+      <th scope="row" style="width: 25%">{{ report.name }}</th>
       {% if report.status == "Running" %}
-      <td> <progress value={{report.progress}} max="100"></progress> </td>
+      <td style="width: 35%"> <progress value={{report.progress}} max="100"></progress> </td>
       {% elif report.status == "Stopped" %}
-      <td style="color: yellow;"> {{ report.status }}</td>
+      <td style="color: #ffd966; font-weight: bold;"> {{ report.status }}</td>
       {% elif report.status == "New" %}
-      <td style="color: blue;"> {{ report.status }}</td>
+      <td style="color: #1095c1; font-weight: bold;"> {{ report.status }}</td>
       {% elif report.status == "Done" %}
-      <td style="color: green;"> {{ report.status }}</td>
+      <td style="color: #00b300; font-weight: bold;"> {{ report.status }}</td>
       {% elif report.status == "Requested" or report.status == "Queued" %}
       <td> <progress></progress></td>
       {% else %}
@@ -43,11 +43,11 @@
       <td> {{ report.task_name }}</td>
       
       {% if report.severity|float >= 7.0 %}
-      <td style="color: darkred;"> {{ report.severity }}</td>
+      <td style="color: #cc0000;"> {{ report.severity }}</td>
       {% elif report.severity|float  >= 4.0 %}
-      <td style="color: orange;"> {{ report.severity }}</td>
-      {% elif report.severity|float >= 0.0 %}
-      <td style="color: lightblue;"> {{ report.severity }}</td>
+      <td style="color: #ff6600;"> {{ report.severity }}</td>
+      {% elif report.severity|float > 0.0 %}
+      <td style="color: #1095c1;"> {{ report.severity }}</td>
       {% elif report.severity  < "0.0" %}
       <td></td>
       {% else %}

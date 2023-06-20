@@ -13,7 +13,7 @@
     <a href="/portlists" role="button" class="outline">Port Lists</a>
 </div>
 <div class="grid">
-<div class="container" style="padding-top: 20px">
+<div class="container-fluid" style="padding-top: 20px">
     <table>
   <thead>
     <tr>
@@ -27,17 +27,17 @@
     <tr>
       <th scope="row">{{ host.name }}</th>  
       {% if host.severity|float >= 7.0 %}
-      <td style="color: darkred;"> {{ host.severity }}</td>
+      <td style="color: #cc0000;"> {{ host.severity }}</td>
       {% elif host.severity|float  >= 4.0 %}
-      <td style="color: orange;"> {{ host.severity }}</td>
+      <td style="color: #ff6600;"> {{ host.severity }}</td>
       {% elif host.severity|float > 0.0 %}
-      <td style="color: lightblue;"> {{ host.severity }}</td>
+      <td style="color: #1095c1;"> {{ host.severity }}</td>
       {% elif host.severity  < "0.0" %}
       {% else %}
       <td> {{ host.severity }}</td>
       {% endif %}
       <td>
-        <div class="grid">
+        <div class="grid" style="float: right;">
             {% if host.in_use == "0" %}
             <form action="/deletehost/{{host.id}}" method="post" style="height: 23;">
             <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline">

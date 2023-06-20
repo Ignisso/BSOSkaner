@@ -92,6 +92,11 @@ def tasks():
         status = task.find("status").text
         progress = task.find("progress").text
         report_count = task.getchildren()[16].text
+        config = task.find("config").find("name").text
+        target = task.find("target").find("name").text
+        scanner = task.find("scanner").find("name").text
+        schedule = task.find("schedule").find("name").text
+
         last_report = ""
         severity = ""
         warning = ""
@@ -99,7 +104,7 @@ def tasks():
             last_report = task.getchildren()[-3].getchildren()[0].getchildren()[0].text
             severity = task.getchildren()[-3].getchildren()[0].find("severity").text
             warning = task.getchildren()[-3].getchildren()[0].getchildren()[-2].find("warning").text
-        tasksDTO.append({"id": id, "name": name, "in_use": in_use, "status": status, "progress": progress, "reports": report_count, "last_report": last_report, "severity": severity, "warning": warning})
+        tasksDTO.append({"id": id, "name": name, "in_use": in_use, "status": status, "progress": progress, "config": config, "target": target, "scanner": scanner, "schedule": schedule, "reports": report_count, "last_report": last_report, "severity": severity, "warning": warning})
 
     return render_template("tasks.html", tasks=tasksDTO, scan_configs=OpenVAS.scan_configs, targets=OpenVAS.targets, scanners=OpenVAS.scanners, schedules=OpenVAS.schedules)
 
@@ -127,14 +132,26 @@ def targets():
         in_use = target.find("in_use").text
         hosts = target.find("hosts").text
         max_hosts = target.find("max_hosts").text
+        port_list = target.find("port_list").find("name").text
 
-        targetsDTO.append({"id": id, "name": name, "in_use": in_use, "hosts": hosts, "max_hosts": max_hosts})
+        targetsDTO.append({"id": id, "name": name, "in_use": in_use, "hosts": hosts, "max_hosts": max_hosts, "port_list": port_list})
 
     return render_template("targets.html", targets=targetsDTO, port_lists=OpenVAS.port_lists)
 
 @app.route("/createportlist", methods = ["POST"])
 def createportlist():
-    OpenVAS.create_port_list(request.form["name"], request.form["ports"])
+    print(request.form)
+    ports = ""
+    if "tcp" in request.form:
+        if request.form["tcp"] != "":
+            ports = ports + f'T:{request.form["tcp"]}'
+
+    if "udp" in request.form:
+        if request.form["udp"] != "":
+            ports = ports + f'U:{request.form["udp"]}'
+
+    print(ports)
+    OpenVAS.create_port_list(request.form["name"], ports)
     return redirect("/portlists")
 
 @app.route("/deleteportlist/<portlist_id>", methods = ["POST"])
@@ -192,6 +209,8 @@ def hosts():
         name = host.find("name").text
         in_use = host.find("in_use").text
         severity = host.find("host").find("severity").find("value").text
+        if severity == "" or severity is None:
+            severity = "0.0"
         color = "grey"
         if float(severity) >= 7.0:
             color = "red"
@@ -343,4 +362,7 @@ def savesettings():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    if os.name == 'nt':
+        app.run(debug=True, port=5001)
+    else:
+        app.run(debug=False, port=5000)
