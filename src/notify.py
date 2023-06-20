@@ -23,8 +23,8 @@ if __name__ == "__main__":
 			name = report.find("name").text
 			status = report.find("report").find("scan_run_status").text
 
-			if status == "Done" and dateutil.parser.parse(name) + timedelta(minutes=2) >= datetime.now(tz=pytz.utc):
+			if status == "Done" and dateutil.parser.parse(name) + timedelta(seconds=35) >= datetime.now(tz=pytz.utc):
 				OpenVAS.send_report(id)
 			else:
 				print("No reports found ", datetime.now(pytz.utc))
-		sleep(10)
+		sleep(30)

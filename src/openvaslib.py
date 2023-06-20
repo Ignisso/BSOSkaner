@@ -22,7 +22,6 @@ class OpenVAS:
 		connection = TLSConnection(hostname=hostname, port=port)
 		transform = EtreeCheckCommandTransform()
 		
-		self.config = Configuration()
 		self.gmp = Gmp(connection=connection, transform=transform)
 		self.gmp.authenticate(username, password)
 			
@@ -71,15 +70,16 @@ class OpenVAS:
 	
 	def send_report(self, report_id, taskname = "XYZ", tasktime = datetime.now()):
 		try:
+			config = Configuration()
 			pdfdata = self.export_report(report_id)
-			path = self.config.get_report_path()
+			path = config.get_report_path()
 			with open(path, "xb") as file:
 				file.write(pdfdata)
-				self.config.writeLog("Created new report: " + path)
+				config.writeLog("Created new report: " + path)
 			
-			message = self.config.get_report_message(tasktime)
-			subject = self.config.get_report_subject(taskname)
-			mail = self.config.get_value("SendTo")
+			message = config.get_report_message(tasktime)
+			subject = config.get_report_subject(taskname)
+			mail = config.get_value("SendTo")
 			system(f"echo \"{message}\" | mail -s \"{subject}\" -A \"{path}\" {mail}")
 		except Exception as e:
 			print(f"[ERR] An error occured while creating report {report_id}")
