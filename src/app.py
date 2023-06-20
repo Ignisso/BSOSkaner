@@ -9,7 +9,7 @@ app.config["SESSION_PERMAMENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 OpenVAS = None
-if (environ.get('RUNNING_IN_DOCKER') is None):
+if (environ.get('RUNNING_IN_DOCKER') is not None):
     OpenVAS = openvas("localhost", 9390, "admin", "admin")
 else:
     OpenVAS = openvas("192.168.0.227", 9390, "admin", "admin")

@@ -8,7 +8,6 @@ RUN pip install flask-session
 
 RUN apt-get update
 RUN apt-get install -y mailutils
-RUN postconf maillog_file=/var/log/mail
 RUN mkdir /etc/bsoskaner
 RUN touch /etc/bsoskaner/scanner.log
 RUN mkdir /etc/bsoskaner/reports
@@ -19,6 +18,7 @@ COPY . .
 
 RUN mv single.sh /scripts
 RUN mv config/template /etc/bsoskaner
+RUN mv config/password /etc/bsoskaner
 RUN mv config/mailutils/* /etc
 RUN mv config/postfix/* /etc/postfix
 RUN postmap /etc/postfix/sasl_passwd

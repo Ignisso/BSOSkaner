@@ -4,8 +4,8 @@ from time import strftime
 from datetime import datetime
 from os import environ
 
-CONFIG_FILE =  "../config/config.cfg" #"/run/bsoskaner/config/config.cfg"
-DEFAULT_CONFIG_FILE = "../config/default.cfg" # "/run/bsoskaner/config/default.cfg"
+CONFIG_FILE =  "/run/bsoskaner/config/config.cfg"
+DEFAULT_CONFIG_FILE = "/run/bsoskaner/config/default.cfg"
 
 class Configuration:
 	def __init__(self):
@@ -54,7 +54,6 @@ class Configuration:
 			for word in (("{MAIL}", self.get_value("SendFrom")),
 			("{USERNAME}", self.get_value("Username")),
 			("{MAIL}", self.get_value("SendFrom")),
-			("{SCAN_CONFIG}", self.get_value("ScanType")),
 			("{DATETIME}", str(task_time)),
 			("{DURATION}", str(datetime.now() - task_time))):
 				message = message.replace(*word)

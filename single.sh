@@ -348,8 +348,7 @@ fi
 
 
 echo "Starting Postfix for report delivery by email"
-# Configure postfix
-sed -i "s/^relayhost.*$/relayhost = ${RELAYHOST}:${SMTPPORT}/" /etc/postfix/main.cf
+
 # Start the postfix  bits
 #/usr/lib/postfix/sbin/master -w
 service postfix start
@@ -432,6 +431,7 @@ echo "++++++++++++++++"
 echo "+ Tailing logs +"
 echo "++++++++++++++++"
 
+postconf maillog_file=/var/log/mail
 service postfix start
 flask run --host=0.0.0.0 &
 python3 /run/bsoskaner/src/notify.py &

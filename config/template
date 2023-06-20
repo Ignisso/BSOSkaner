@@ -6,7 +6,6 @@ Report Summary:
 
 Scan Date and Time: {DATETIME}
 Scan Duration: {DURATION}
-Scan Type: {SCAN_CONFIG}
 
 Please note that while OpenVAS strives to provide accurate and reliable results, it is essential to validate and verify the identified vulnerabilities in your specific environment.
 
