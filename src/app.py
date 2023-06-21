@@ -19,7 +19,7 @@ if (environ.get('RUNNING_IN_DOCKER') is not None):
         config.restore_defaults()
         environ['RUNNING_IN_DOCKER'] = '0'
 else:
-    OpenVAS = openvas("192.168.0.227", 9390, "admin", "admin")
+    OpenVAS = openvas("localhost", 9390, "admin", "admin")
 
 @app.before_request
 def before_request_func():
