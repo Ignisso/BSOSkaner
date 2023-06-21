@@ -68,8 +68,10 @@ class OpenVAS:
 			print(f"[ERR] An error occured while deleting report {report_id}")
 			print(e)
 	
-	def send_report(self, report_id, taskname = "XYZ", tasktime = datetime.now()):
+	def send_report(self, report_id):
 		try:
+			tasktime = OpenVAS.get_report(report_id).find("report").find("name").text
+			taskname = OpenVAS.get_report(report_id).find("report").find("task").find("name").text
 			config = Configuration()
 			pdfdata = self.export_report(report_id)
 			path = config.get_report_path()

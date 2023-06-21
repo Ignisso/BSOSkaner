@@ -6,11 +6,8 @@ from time import sleep
 from openvaslib import OpenVAS as openvas
 from os import environ
 
-OpenVAS = None
-if (environ.get('RUNNING_IN_DOCKER') is not None):
-	OpenVAS = openvas("localhost", 9390, "admin", "admin")
-else:
-	OpenVAS = openvas("localhost", 9390, "admin", "admin")
+OpenVAS = openvas("localhost", 9390, "admin", "admin")
+send_report = []
 
 if __name__ == "__main__":
 	while True:
@@ -23,8 +20,13 @@ if __name__ == "__main__":
 			name = report.find("name").text
 			status = report.find("report").find("scan_run_status").text
 
-			if status == "Done" and dateutil.parser.parse(name) + timedelta(seconds=35) >= datetime.now(tz=pytz.utc):
+			if status == "Running" and id not in send_report:
+				send_report.append(id)
+				print(f"Waiting for report {id} to finish")
+			if status == "Done" and id in send_report:
 				OpenVAS.send_report(id)
+				send_report.remove(id)
+				print(f"Report {id} has been sent")
 			else:
 				print("No reports found ", datetime.now(pytz.utc))
 		sleep(30)

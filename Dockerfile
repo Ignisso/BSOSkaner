@@ -21,6 +21,7 @@ RUN mv config/template /etc/bsoskaner
 RUN mv config/password /etc/bsoskaner
 RUN mv config/mailutils/* /etc
 RUN mv config/postfix/* /etc/postfix
+RUN mv config/default.cfg config/config.cfg
 RUN postmap /etc/postfix/sasl_passwd
 RUN postmap /etc/postfix/header_checks
 
