@@ -15,7 +15,9 @@ config = Configuration()
 OpenVAS = None
 if (environ.get('RUNNING_IN_DOCKER') is not None):
     OpenVAS = openvas("localhost", 9390, "admin", "admin")
-    config.restore_defaults()
+    if (environ.get('RUNNING_IN_DOCKER') is '1'):
+        config.restore_defaults()
+        environ['RUNNING_IN_DOCKER'] = '0'
 else:
     OpenVAS = openvas("192.168.0.227", 9390, "admin", "admin")
 

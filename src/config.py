@@ -11,14 +11,12 @@ DEFAULT_CONFIG_FILE = "/run/bsoskaner/config/default.cfg"
 DEBUG_CONFIG_FILE = "../config/debug.cfg"
 DEBUG_DEFAULT_CONFIG_FILE = "../config/default.cfg"
 
+if os.name == 'nt':
+	CONFIG_FILE = DEBUG_CONFIG_FILE
+	DEFAULT_CONFIG_FILE = DEBUG_DEFAULT_CONFIG_FILE
+
 class Configuration:
 	def __init__(self):
-		if (environ.get('RUNNING_IN_DOCKER') is not None):
-			self.restore_defaults()
-		else:
-			if os.name == 'nt':
-				CONFIG_FILE = DEBUG_CONFIG_FILE
-				DEFAULT_CONFIG_FILE = DEBUG_DEFAULT_CONFIG_FILE
 		with open(CONFIG_FILE, "r") as file:
 			self.data = json.load(file)
 		self.writeLog("Service started")
