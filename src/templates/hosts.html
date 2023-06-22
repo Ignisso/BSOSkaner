@@ -36,8 +36,8 @@
       {% else %}
       <td> {{ host.severity }}</td>
       {% endif %}
-      <td>
-        <div class="grid" style="float: right;">
+      <td style="width: 3.3%;">
+        <div class="grid">
             {% if host.in_use == "0" %}
             <form action="/deletehost/{{host.id}}" method="post" style="height: 23;">
             <button style="width: 20px; height:20px;align-items: center; justify-content: center; display: flex;" class="outline">

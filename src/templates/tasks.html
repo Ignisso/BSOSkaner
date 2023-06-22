@@ -62,7 +62,7 @@
       {% else %}
       <td> {{ task.severity }}</td>
       {% endif %}
-      <td>
+      <td style="width: 10%;">
         <div class="grid">
             {% if task.status == "Running" %}
             <div>
@@ -163,12 +163,7 @@
                 <option value={{scan_configs[name]}} selected>{{name}}</option>
             {% endfor %}
         </select>
-        <label for="scanner_id">Scanner</label>
-        <select name="scanner_id" id="scanner_id" required>
-            {% for name in scanners %}
-                <option value={{scanners[name]}} selected>{{name}}</option>
-            {% endfor %}
-        </select>
+        <input type="hidden" name="scanner_id" id="scanner_id" value="08b69003-5fc2-4037-a479-93b440211c73"></option>
         <button type="submit">Add</button>
     </form>
   </article>

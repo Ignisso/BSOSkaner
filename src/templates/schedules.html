@@ -28,7 +28,7 @@
       <th scope="row">{{ schedule.name }}</th>
       <th scope="row">{{ schedule.dtstart }}</th>
       <th scope="row">{{ schedule.repeat }}</th>
-      <td>
+      <td style="width: 3.3%;">
         <div class="grid">
             {% if schedule.in_use == "0" %}
             <form action="/deleteschedule/{{schedule.id}}" method="post" style="height: 23;">

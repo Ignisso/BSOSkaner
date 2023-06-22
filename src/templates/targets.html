@@ -30,7 +30,7 @@
       <td> {{ target.hosts }}</td>
       <td> {{ target.max_hosts }}</td>
       <td> {{ target.port_list }}</td>
-      <td>
+      <td style="width: 3.3%;">
         <div class="grid">
             {% if target.in_use == "0" %}
             <form action="/deletetarget/{{target.id}}" method="post" style="height: 23;">

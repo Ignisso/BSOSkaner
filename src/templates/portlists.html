@@ -30,7 +30,7 @@
       <td> {{ port_list.all }}</td>
       <td> {{ port_list.tcp }}</td>
       <td> {{ port_list.udp }}</td>
-      <td>
+      <td style="width: 3.3%;">
         <div class="grid">
             {% if port_list.in_use == "0" %}
             <form action="/deleteportlist/{{port_list.id}}" method="post" style="height: 23;">
