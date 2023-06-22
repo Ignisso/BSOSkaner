@@ -87,6 +87,8 @@ class OpenVAS:
 			print(f"[ERR] An error occured while creating report {report_id}")
 			print(e)
 
+	def get_report(self, report_id):
+		return self.gmp.get_report(report_id=report_id)
 	def __update_port_lists(self):
 		self.port_lists = self.__xml_to_dict(self.gmp.get_port_lists().getchildren()[:-4])
 	def __update_scan_configs(self):
