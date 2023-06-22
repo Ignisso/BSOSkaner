@@ -13,12 +13,14 @@ app.config["SESSION_PERMAMENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 config = Configuration()
+OpenVAS = None
 OpenVAS = openvas("localhost", 9390, "admin", "admin")
 
 @app.before_request
 def before_request_func():
+	global OpenVAS
 	if OpenVAS is None:
-		openvas("localhost", 9390, "admin", "admin")
+		OpenVAS = openvas("localhost", 9390, "admin", "admin")
 	elif not OpenVAS.is_connected():
 		OpenVAS.reconnect()
 

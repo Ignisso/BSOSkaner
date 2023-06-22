@@ -29,4 +29,4 @@ if __name__ == "__main__":
 				print(f"Report {id} has been sent")
 			else:
 				print("No reports found ", datetime.now(pytz.utc))
-		sleep(30)
+		sleep(1)

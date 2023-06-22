@@ -431,6 +431,7 @@ echo "++++++++++++++++"
 echo "+ Tailing logs +"
 echo "++++++++++++++++"
 
+export LIBXML_MAX_NODESET_LENGTH=40000000
 postconf maillog_file=/var/log/mail
 service postfix start
 flask run --host=0.0.0.0 &
