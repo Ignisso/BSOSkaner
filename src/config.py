@@ -57,11 +57,22 @@ class Configuration:
 		with open(self.get_value("MailTemplate"), "r") as file:
 			message = file.read()
 			
+			duration = datetime.now() - datetime.strptime(task_time, "%Y-%m-%dT%H:%M:%SZ")
+			text = ""
+			if duration.days > 0:
+				text = f"{duration.days}d {int(duration.seconds / 3600)}h {int(duration.seconds - int(duration.seconds / 3600) / 60)}m {duration.seconds % 60}s"
+			elif duration.seconds > 3600:
+				text = f"{duration.seconds / 3600}h {int(duration.seconds / 3600)}h {int(duration.seconds - int(duration.seconds / 3600) / 60)}m {duration.seconds % 60}"
+			elif duration.seconds > 60:
+				text = f"{int(duration.seconds - int(duration.seconds / 3600) / 60)}m {duration.seconds % 60}"
+			else:
+				text = f"{duration.seconds % 60}s"
+			
 			for word in (("{MAIL}", self.get_value("SendFrom")),
 			("{USERNAME}", self.get_value("Username")),
 			("{MAIL}", self.get_value("SendFrom")),
-			("{DATETIME}", str(task_time)),
-			("{DURATION}", str(datetime.now() - task_time))):
+			("{DATETIME}", str(task_time).replace("T", " ")[:-1]),
+			("{DURATION}", text)):
 				message = message.replace(*word)
 			return message
 

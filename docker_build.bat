@@ -1,0 +1,1 @@
+docker build -t majumi/bsoskaner:1.1 .

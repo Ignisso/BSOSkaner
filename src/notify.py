@@ -10,6 +10,7 @@ OpenVAS = openvas("localhost", 9390, "admin", "admin")
 send_report = []
 
 if __name__ == "__main__":
+	print("Started listening for new reports ", datetime.now(pytz.utc))
 	while True:
 		if not OpenVAS.is_connected():
 			OpenVAS.reconnect()
@@ -27,6 +28,4 @@ if __name__ == "__main__":
 				OpenVAS.send_report(id)
 				send_report.remove(id)
 				print(f"Report {id} has been sent")
-			else:
-				print("No reports found ", datetime.now(pytz.utc))
 		sleep(1)
